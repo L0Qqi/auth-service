@@ -1,0 +1,2 @@
+ALTER TABLE refresh_tokens
+ADD COLUMN ip TEXT NOT NULL DEFAULT '';

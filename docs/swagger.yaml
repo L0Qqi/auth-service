@@ -1,0 +1,125 @@
+basePath: /
+definitions:
+  handlers.RefreshRequest:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  tokens.TokenPair:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Документация API для сервиса аутентификации
+  title: Auth Service API
+  version: "1.0"
+paths:
+  /logout:
+    post:
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: logged out successfully
+          schema:
+            type: string
+        "401":
+          description: invalid token
+          schema:
+            type: string
+        "500":
+          description: failed to logout
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Выход пользователя
+      tags:
+      - auth
+  /me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получение userID
+      tags:
+      - auth
+  /tokens:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает новую пару access и refresh токенов по user_id
+      parameters:
+      - description: Идентификатор пользователя (GUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tokens.TokenPair'
+        "400":
+          description: missing user_id
+          schema:
+            type: string
+        "500":
+          description: failed to generate token
+          schema:
+            type: string
+      summary: Получение токенов
+      tags:
+      - auth
+  /tokens/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновляет access и refresh токены при валидной паре
+      parameters:
+      - description: Refresh tokens
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tokens.TokenPair'
+        "400":
+          description: invalid request
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+      summary: Обновление токенов
+      tags:
+      - auth
+swagger: "2.0"
